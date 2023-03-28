@@ -1,21 +1,32 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react'
+import { RootStackParamList } from '../App';
+import Quiz from './Quiz';
+type ProfileScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Home'>;
 
-const Home = () => {
+type Props = {
+  navigation: ProfileScreenNavigationProp;
+};
+
+
+const Home = ({navigation} : Props) => {
   return (
-    <View>
+    <View style={styles.container}>
       <View style = {styles.title}>
       <Text style={styles.headText} >Quizio</Text>
       </View>
       <View style ={styles.bannerContainer}>
       <Image 
-      source={{uri:'https://cdn-icons-png.flaticon.com/512/3261/3261259.png'}}
+      source={{uri:'https://cdni.iconscout.com/illustration/premium/thumb/online-exam-7450819-6073431.png'}}
       style={styles.banner}
       />
       </View>
-      <View style ={styles.button}>
-      <TouchableOpacity>
-        <Text style={styles.buttonText}>Start</Text>
+      <View >
+      <TouchableOpacity style ={styles.button} onPress={()=>navigation.navigate("Quiz")}>
+        <Text style={styles.buttonText} >Start</Text>
       </TouchableOpacity>
       </View>
     </View>
@@ -25,15 +36,19 @@ const Home = () => {
 export default Home
 
 const styles = StyleSheet.create({
+    container:{
+      height:'100%'
+    },
     title:{
       flexDirection:'row',
       paddingVertical:50,
       justifyContent:'center',
-      alignContent:'center',
-        
+      alignContent:'center',   
     },
     headText:{
-      fontSize: 30,
+      fontSize: 35,
+      color:'black',
+      fontWeight:'500'
     },
     banner:{
       width:300,
@@ -43,20 +58,20 @@ const styles = StyleSheet.create({
       justifyContent:'center',
       alignItems:'center',
       paddingBottom:80,
+      flex:1,
     },
 
     button:{
       flexDirection:'row',
       paddingVertical:30,
-      marginLeft: 60,
-      marginRight:60,
+      margin:40,
       justifyContent:'center',
       alignContent:'center',
       backgroundColor:'black',
       borderRadius:30,
     },
     buttonText:{
-      fontSize:20
+      fontSize:20,
     }
 
 })
