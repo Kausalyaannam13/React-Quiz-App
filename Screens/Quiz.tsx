@@ -9,63 +9,114 @@ type ProfileScreenNavigationProp = StackNavigationProp<
     navigation: ProfileScreenNavigationProp;
   };
   
+const handleShuffleArray=(array:any)=>{
+  let currentIndex = array.length,  randomIndex;
+  while (currentIndex != 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
 
 const Quiz = ({navigation}:Props) => {
-    const [quesions, setQuestions]= useState();
+    const [questions, setQuestions]= useState();
     const [ques, setQues] = useState(0);
+    const [options, setOptions] = useState([""]);
+    const [score, setScore]= useState(0)
+    
 
     const getQuiz = async () =>{
-      const url='https://the-trivia-api.com/api/questions';
+      const url='https://the-trivia-api.com/api/questions/';
       const res= await fetch(url);
       const data= await res.json();
-      setQuestions(data.results);
+      console.log(data)
+      setQuestions(data);
+      setOptions(generateOptionsandShuffle(data[0]))
     };
     useEffect(()=>{
      getQuiz();
   },[]);
+
+  const handleNextPress=()=>{
+    setQues(ques+1);
+  }
+
+  const handleSelectedOption=(_option: any)=>{
+    if(questions){
+    if(_option === questions[ques]["correctAnswer"]){
+      setScore(score+10)
+    }
+    if(ques!==9){
+      setQues(ques+1)
+      setOptions(generateOptionsandShuffle(questions[ques+1]))
+    }
+    if(ques===9)
+    {
+      handleShowResults
+    }
+  }
+}
+
+  const handleShowResults=()=>{
+    navigation.navigate("Result", {score})
+  }
+
+  const generateOptionsandShuffle=(_question: any)=>{
+    const options =[..._question["incorrectAnswers"]]
+    options.push(_question["correctAnswer"])
+ 
+    handleShuffleArray(options)
+ 
+    return options
+ }
   return (
     <View style={styles.container}>
-      {quesions&& (
-      <View>
+      {questions && (
+        <View style={styles.parent}>
       <View style={styles.question}>
-        <Text style={styles.questionText}>Question</Text>
+        <Text style={styles.questionText}>{questions[ques]["question"]}</Text>
       </View>
       <View style={styles.options}>
-        <TouchableOpacity style={styles.optionButton}>
-            <Text style={styles.optionsText}>Option1</Text>
+        <TouchableOpacity style={styles.optionButton} onPress={()=>handleSelectedOption(options[0])}>
+            <Text style={styles.optionsText}>{options[0]}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}>
-            <Text style={styles.optionsText}>Option2</Text>
+        <TouchableOpacity style={styles.optionButton} onPress={()=>handleSelectedOption(options[1])}>
+            <Text style={styles.optionsText}>{options[1]}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}>
-            <Text style={styles.optionsText}>Option3</Text>
+        <TouchableOpacity style={styles.optionButton} onPress={()=>handleSelectedOption(options[2])}>
+            <Text style={styles.optionsText}>{options[2]}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}>
-            <Text style={styles.optionsText}>Option4</Text>
+        <TouchableOpacity style={styles.optionButton} onPress={()=>handleSelectedOption(options[3])}>
+            <Text style={styles.optionsText}>{options[3]}</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.bottom}>
-        <TouchableOpacity style={styles.button}>
+
+        {ques !==9 && (<TouchableOpacity style={styles.button} onPress={handleNextPress}>
         <Text style={styles.bottomText}>SKIP</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-        <Text style={styles.bottomText}>NEXT</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("Result")}>
-          <Text style={styles.bottomText}>END</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>)}
+
+        {ques=== 9 && (<TouchableOpacity style={styles.button} onPress={handleShowResults}>
+        <Text style={styles.bottomText}>Show Results</Text>
+        </TouchableOpacity>)}
       </View>
-      </View>)}
-    </View>
-  )
-}
+      </View>
+      )}
+      </View>
+  );
+};
 
 export default Quiz
 
 const styles = StyleSheet.create({
     container:{
         padding :20,
-        height:'100%',
+        height:'100%'
+       
     },
     question:{
         paddingVertical: 20,
@@ -109,4 +160,7 @@ const styles = StyleSheet.create({
       paddingHorizontal:18,
       paddingVertical:12
     },
+    parent:{
+      height:'100%'
+    }
 })
